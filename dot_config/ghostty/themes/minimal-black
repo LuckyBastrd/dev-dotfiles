@@ -1,0 +1,24 @@
+# CitrusZest Theme for Ghostty
+
+palette = 0=#404040
+palette = 1=#FF5454
+palette = 2=#00CC7A
+palette = 3=#FFD400
+palette = 4=#00BFFF
+palette = 5=#FF8FFD
+palette = 6=#48D1CC
+palette = 7=#BFBFBF
+palette = 8=#808080
+palette = 9=#FF1A75
+palette = 10=#1AFFA3
+palette = 11=#FFFF00
+palette = 12=#33CFFF
+palette = 13=#FFB1FE
+palette = 14=#00FFF2
+palette = 15=#F9F9F9
+
+background = #121212
+foreground = #BFBFBF
+cursor-color = #666666
+selection-background = #FF8C00
+selection-foreground = #F4F4F4

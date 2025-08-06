@@ -1,0 +1,8 @@
+{{-   template "zprofile_common.tmpl" . -}}
+
+
+{{- if eq .chezmoi.os "darwin" -}}
+{{-   template "zprofile_darwin.tmpl" . -}}
+{{- else if eq .chezmoi.os "linux" -}}
+{{-   template "zprofile_linux.tmpl" . -}}
+{{- end -}}

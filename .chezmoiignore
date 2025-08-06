@@ -1,0 +1,17 @@
+README.md
+ansible/
+.config/nvim/
+.local/bin/tmux-sessionizer
+dev-env
+dev-commit
+env-scripts/
+
+{{ if eq .chezmoi.os "linux" }}
+.config/aerospace/
+{{ end }}
+
+{{ if eq .chezmoi.os "darwin" }}
+.config/hypr/
+.config/waybar/
+.config/rofi/
+{{ end }}

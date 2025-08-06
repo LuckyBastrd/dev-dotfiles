@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SSH_DIR="$HOME/.ssh"
+LOAD_SCRIPT="$HOME/.local/bin/scripts/load_ssh_keys"
+OS="$(uname -s)"
+KEYS_LOADED=0
+
+# === Already Loaded? ===
+if ssh-add -l >/dev/null 2>&1 && [[ $(ssh-add -l | grep -c 'ED25519\|RSA') -gt 0 ]]; then
+  echo "🔐 SSH keys already loaded."
+  read -rp "Press Enter to continue..."
+  clear
+  exit 0
+fi
+
+case "$OS" in
+  Darwin)
+    echo "🍎 macOS detected."
+
+    for key in "$SSH_DIR"/id_ed25519_* "$SSH_DIR"/id_rsa_*; do
+      [[ -f "$key" ]] || continue
+      [[ "$key" =~ id_ed25519$|id_rsa$ ]] && continue  # skip default names
+
+      echo "🔑 Adding $key to ssh-agent with macOS Keychain integration..."
+      if ssh-add --apple-use-keychain "$key" &>/dev/null; then
+        ((KEYS_LOADED++))
+      fi
+    done
+    ;;
+
+  Linux)
+    echo "🐧 Linux detected."
+
+    if [[ -x "$LOAD_SCRIPT" ]]; then
+      "$LOAD_SCRIPT"
+      KEYS_LOADED=$(ssh-add -l | grep -c 'ED25519\|RSA')
+    else
+      echo "⚠️ Could not find your Linux GPG loader at: $LOAD_SCRIPT"
+      read -rp "Press Enter to continue..."
+      clear
+      exit 1
+    fi
+    ;;
+
+  *)
+    echo "⚠️ Unsupported OS: $OS"
+    read -rp "Press Enter to continue..."
+    clear
+    exit 1
+    ;;
+esac
+
+# === Final Status ===
+if [[ "$KEYS_LOADED" -gt 0 ]]; then
+  echo "✅ $KEYS_LOADED SSH key(s) loaded."
+else
+  echo "⚠️ No SSH keys were loaded."
+fi
+
+read -rp "Press Enter to continue..."
+clear

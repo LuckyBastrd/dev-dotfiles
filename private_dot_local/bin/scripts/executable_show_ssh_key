@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+KEY_PATH="$1"
+KEY_NAME="$(basename "$KEY_PATH" | sed 's/^id_ed25519_//')"
+
+echo
+echo "📋 Your new public key:"
+cat "${KEY_PATH}.pub"
+
+# === Copy to clipboard ===
+echo
+if command -v pbcopy &>/dev/null; then
+  pbcopy < "${KEY_PATH}.pub"
+  echo "✅ Public key copied to clipboard using pbcopy (macOS)"
+elif command -v xclip &>/dev/null; then
+  xclip -selection clipboard < "${KEY_PATH}.pub"
+  echo "✅ Public key copied to clipboard using xclip (Linux/X11)"
+elif command -v wl-copy &>/dev/null; then
+  wl-copy < "${KEY_PATH}.pub"
+  echo "✅ Public key copied to clipboard using wl-copy (Linux/Wayland)"
+else
+  echo "⚠️ Clipboard tool not found. Copy manually from above output."
+fi
+
+# === If it's a GitHub key, show the GitHub instructions ===
+if [[ "$KEY_NAME" == "github" ]]; then
+  echo
+  echo "👉 Paste it into your GitHub SSH settings:"
+  echo "   https://github.com/settings/ssh/new"
+
+  if command -v open &>/dev/null; then
+    open "https://github.com/settings/ssh/new" >/dev/null 2>&1 &
+  elif command -v xdg-open &>/dev/null; then
+    xdg-open "https://github.com/settings/ssh/new" >/dev/null 2>&1 &
+  fi
+fi

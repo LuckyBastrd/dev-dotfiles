@@ -1,0 +1,12 @@
+# Tmux
+alias tmux="$(which tmux) -2"
+
+# Editor
+alias vim='nvim'
+
+# Utils
+alias cat='bat'
+
+# System
+alias pathlist="echo \$PATH | tr ':' '\n'"
+alias tutup='shutdown now'

@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+# update_ssh_config: Add an SSH host entry to ~/.ssh/config
+# Usage: update_ssh_config <key_name> <comment/email> <key_path> [ssh_user]
+# Example: update_ssh_config github github@github.com ~/.ssh/id_ed25519_github git
+
+set -euo pipefail
+
+KEY_NAME="$1"
+COMMENT="$2"
+KEY_PATH="$3"
+SSH_USER="${4:-git}"
+
+SSH_CONFIG="$HOME/.ssh/config"
+HOST_ALIAS="$KEY_NAME"
+HOSTNAME=""
+
+# Derive hostname from email/comment if possible
+if [[ "$COMMENT" == *@* ]]; then
+  HOSTNAME="${COMMENT##*@}"
+else
+  HOSTNAME="$KEY_NAME"
+fi
+
+mkdir -p ~/.ssh
+
+# Only create and back up config if it exists
+if [[ -f "$SSH_CONFIG" ]]; then
+  chmod 600 "$SSH_CONFIG"
+  if [[ ! -f "${SSH_CONFIG}.bak" ]]; then
+    cp "$SSH_CONFIG" "${SSH_CONFIG}.bak"
+  fi
+else
+  touch "$SSH_CONFIG"
+  chmod 600 "$SSH_CONFIG"
+fi
+
+# Check for existing host block
+if grep -q "^\s*Host\s\+$HOST_ALIAS\s*$" "$SSH_CONFIG"; then
+  echo "ℹ️ SSH config already contains a Host entry for '$HOST_ALIAS'. Skipping."
+else
+  {
+    echo ""
+    echo "Host $HOST_ALIAS"
+    echo "  HostName $HOSTNAME"
+    echo "  User $SSH_USER"
+    echo "  IdentityFile $KEY_PATH"
+    echo "  IdentitiesOnly yes"
+  } >> "$SSH_CONFIG"
+
+  echo "🛠️ SSH config updated: added Host '$HOST_ALIAS' -> $HOSTNAME"
+fi
