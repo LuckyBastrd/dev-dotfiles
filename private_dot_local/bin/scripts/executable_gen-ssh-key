@@ -152,7 +152,7 @@ else
 fi
 
 # === Update SSH Config ===
-update_ssh_config "$KEY_NAME" "$COMMENT" "$KEY_PATH" "${SSH_USER:-git}"
+update-ssh-config "$KEY_NAME" "$COMMENT" "$KEY_PATH" "${SSH_USER:-git}"
 
 # === Show Public Key and Copy ===
-show_ssh_key "$KEY_PATH"
+show-ssh-key "$KEY_PATH"

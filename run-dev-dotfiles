@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+set -e  # Exit on any error
+
+# ==========================================
+# 🧰 ChezMoi Setup Script (run-dev-dotfiles)
+# ==========================================
+
+# -----------------------------
+# Detect script directory (inside dev-dotfiles)
+# -----------------------------
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CHEZMOI_SOURCE="$SCRIPT_DIR"
+
+# -----------------------------
+# Capitalize OS name
+# -----------------------------
+capitalize() {
+  echo "$1" | awk '{print toupper(substr($0,1,1)) tolower(substr($0,2))}'
+}
+
+# -----------------------------
+# Check if ChezMoi is installed
+# -----------------------------
+is_chezmoi_installed() {
+  command -v chezmoi &> /dev/null
+}
+
+# -----------------------------
+# Install ChezMoi with dynamic OS name
+# -----------------------------
+install_chezmoi() {
+  local os_name="$1"
+  local os_display
+  os_display=$(capitalize "$os_name")
+
+  echo
+  echo "--------------------------------------------"
+  echo "📦 Installing ChezMoi on ${os_display}..."
+  echo "--------------------------------------------"
+  echo
+
+  case "$os_name" in
+    arch)
+      sudo pacman -S --noconfirm chezmoi
+      ;;
+    mac)
+      brew install chezmoi
+      ;;
+    *)
+      echo "[ERROR]: Unsupported OS for installation."
+      exit 1
+      ;;
+  esac
+}
+
+# -----------------------------
+# Ask user to apply dotfiles
+# -----------------------------
+ask_for_apply() {
+  echo
+  read -p "Do you want to apply the dotfiles now? (y/n): " answer
+  case "${answer}" in
+    [Yy]*)
+      echo -e "\n✅ Applying dotfiles..."
+      chezmoi apply
+      ;;
+    [Nn]*)
+      echo -e "\nℹ️  Dotfiles not applied. Run 'chezmoi apply' manually later."
+      ;;
+    *)
+      echo -e "[ERROR]: Invalid input. Use 'y' or 'n'."
+      ask_for_apply
+      ;;
+  esac
+}
+
+# ========================
+# 🚀 Main process
+# ========================
+main() {
+  local os_type os_name
+  os_type="$(uname -s)"
+
+  case "$os_type" in
+    Linux*)
+      if [[ -f /etc/arch-release ]]; then
+        os_name="arch"
+      else
+        echo "[ERROR]: Unsupported Linux distribution"
+        exit 1
+      fi
+      ;;
+    Darwin*)
+      os_name="mac"
+      ;;
+    *)
+      echo "[ERROR]: Unsupported operating system: $os_type"
+      exit 1
+      ;;
+  esac
+
+  if is_chezmoi_installed; then
+    echo -e "✅ ChezMoi is already installed. Skipping installation."
+  else
+    install_chezmoi "$os_name"
+  fi
+
+  echo
+  echo "---------------------------------------------"
+  echo "📁 Initializing ChezMoi from: $CHEZMOI_SOURCE"
+  echo "---------------------------------------------"
+  echo
+
+  chezmoi init --source "$CHEZMOI_SOURCE"
+
+  ask_for_apply
+}
+
+# Run the main function
+main "$@"

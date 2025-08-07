@@ -3,7 +3,7 @@
 set -euo pipefail
 
 SSH_DIR="$HOME/.ssh"
-LOAD_SCRIPT="$HOME/.local/bin/scripts/load_ssh_keys"
+LOAD_SCRIPT="$HOME/.local/bin/scripts/load-ssh-keys"
 OS="$(uname -s)"
 KEYS_LOADED=0
 
